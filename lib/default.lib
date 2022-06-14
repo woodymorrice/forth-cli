@@ -1,0 +1,9 @@
+."pi" 3.14159265 constant
+."e" 2.71828182 constant
+."sqrt2" 1.41421356 constant
+."speed_of_light" 186,282 constant
+."golden_ratio" 1.61803398 constant
+."first_name" ."Woody" constant
+."last_name" ."Morrice" constant
+."nsid" ."wam553" constant
+."class" ."CMPT270" constant
