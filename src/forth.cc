@@ -149,12 +149,12 @@ int try_push(char *s) {
 	return try_push(d);
 }
 
-// OP -- a tag for FORTH operations								// # of operands
-enum op { 	SPACE, NEWLINE, DICT, LIST,								// nonary
-			DOT, DROP, DUP, NOT, OFIX,								// unary
-			SWAP, PLUS, MINUS, TIMES, DIVIDE, POWER, AND, OR, SET,	// binary
-			EQL, NOTEQL, GRTR, LESS, GRTEQL, LSSEQL, CONST, VAR,
-			ROT, SUBS };											// ternary
+// OP -- a tag for FORTH operations					// # of operands
+enum op { SPACE, NEWLINE, DICT, LIST,					// nonary
+	  DOT, DROP, DUP, NOT, OFIX,					// unary
+	  SWAP, PLUS, MINUS, TIMES, DIVIDE, POWER, AND, OR, SET,	// binary
+  	  EQL, NOTEQL, GRTR, LESS, GRTEQL, LSSEQL, CONST, VAR,
+	  ROT, SUBS };							// ternary
 
 // do_arith -- handles all arithmetic operations
 int do_arith (char o, datum d1, datum d2) {
@@ -269,10 +269,10 @@ int do_0(op o, char* cmd) {
 	case NEWLINE: 	return try_push(strdup("\n"));
 					break;
 
-	case DICT:		return push_dict(strdup(cmd));
+	case DICT:	    return push_dict(strdup(cmd));
 					break;
 
-	case LIST:		return prnt_dict();
+	case LIST:	    return prnt_dict();
 
 	default: if (verbose) { fprintf(stderr, "INTERNAL ERROR: unknown nonary operator %d\n", o); }
 			 return EXIT_SUCCESS;
@@ -386,31 +386,31 @@ int do_3(op o) {
 
 	case SUBS:	if ((STRING == d3.tag) && (FLOAT == d2.tag) && (FLOAT == d1.tag)) {
 					const int d3l = strnlen(d3.s, CMD_SIZE);
-					if (0 == d3l) {				// if length = 0 push empty str
+					if (0 == d3l) {			// if length = 0 push empty str
 						datum d; d.tag = STRING;
 						d.s = strdup("");
 						assert(push(d));
 						return EXIT_SUCCESS;
 					}
 
-					int s = (int) d2.f;			// start
+					int s = (int) d2.f;		// start
 					if (s < 0) { s = 0; }		// if less than zero, set = 0
-					int e = (int) d1.f;			// end
+					int e = (int) d1.f;		// end
 					if (e > d3l) { e = d3l; }	// if greater than length set = length
-					if (s > e) { e = s; }		// if start > end, set end = start
+					if (s > e) { e = s; }		// if start > end, set end = start					
 					const int dl = e - s + 1;	// length of slice
 
 					datum d; d.tag = STRING;
 					d.s = new char[dl+1];		// make room for tombstone
 					strncpy(d.s, &d3.s[s], dl);	// copy d3 starting at start
-					d.s[dl] = '\0';				// place tombstone at end
+					d.s[dl] = '\0';			// place tombstone at end
 					assert(push(d));
 					return EXIT_SUCCESS;
 				} break;
 
 	default: 	if (verbose) { fprintf(stderr, "INTERNAL ERROR: invalid ternary op %d\n", o); }
-				return EXIT_FAILURE;
-				break;
+			return EXIT_FAILURE;
+			break;
 	}
   	if (verbose) { fprintf(stderr, "USER ERROR: invalid operands\n"); }
   	return EXIT_FAILURE;
@@ -471,11 +471,11 @@ int process_cmd(const char* cmd) {
 	  // dictionary ops
 	} else if (0 == strcmp("constant",  cmd)) { return do_2(CONST);
 	} else if (0 == strcmp("variable",  cmd)) { return do_2(VAR);
-	} else if (0 == strcmp("set", 		cmd)) { return do_2(SET);
+	} else if (0 == strcmp("set", 	    cmd)) { return do_2(SET);
 	} else if (0 == strcmp("list_dict", cmd)) { return do_0(LIST, strdup(cmd));
 
 	  // dictionary entry
-	} else if (srch_dict(strdup(cmd))) 		  { return do_0(DICT, strdup(cmd));
+	} else if (srch_dict(strdup(cmd))) 	  { return do_0(DICT, strdup(cmd));
 	}
 	
 	  // unknown
