@@ -11,25 +11,25 @@
 # Test each target, if any errors are reported, test failed
 
 make  out/forth.o > test/test1.act
-rm -f out/forth.o
+make squeaky clean
 
 make  out/stack.o >> test/test1.act
-rm -f out/stack.o
+make squeaky clean
 
 make  out/dict.o >> test/test1.act
-rm -f out/dict.o
+make squeaky clean
 
 make  out/datum.o >> test/test1.act
-rm -f out/datum.o
+make squeaky clean
 
 make  bin/forth >> test/test1.act
-rm -f out/forth.o out/stack.o out/dict.o out/datum.o bin/forth
+make squeaky clean
 
 make  forth >> test/test1.act
-rm -f out/forth.o out/stack.o out/dict.o out/datum.o bin/forth
+make squeaky clean
 
 make  all >> test/test1.act
-rm -f out/forth.o out/stack.o out/dict.o out/datum.o bin/forth
+make squeaky clean
 
 
 diff test/test1.act test/test1.out | tee test/test1.result
