@@ -239,3 +239,5 @@ Q3: Added Makefile with all and required dependencies. Test1 calls Makefile with
 
 Q4: Added clean and squeaky targets to Makefile. Test1 calls squeaky clean after each target. if any target fails because the file already exists, the test fails.
 
+Q5: Added debug target to Makefile. Added all new targets for dependencies to avoid bugs. Test2 calls debug and all dependencies. All targets must build to pass.
+
