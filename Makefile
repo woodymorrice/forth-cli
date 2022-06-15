@@ -11,7 +11,7 @@ CFLAGS = -Wall -pedantic -std=c++17
 LIBS = -lm
 
 # Utilities
-RM = rm -i
+RM = rm
 TAR = tar
 
 # Other Commands
@@ -20,15 +20,19 @@ DIRNAME = dirname
 GREP = grep
 
 # Default Target
-all: forth
+all: forth debug
 
 
 # For Convenience
-forth: ./bin/forth
+forth: bin/forth
+
+debug: bin/forth-debug
 
 # $@ == Target
 # @< == Dependencies
 
+
+### Production Build ###
 # Linking
 bin/forth:	out/forth.o out/datum.o out/dict.o out/stack.o
 	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
@@ -46,6 +50,26 @@ out/stack.o: src/stack.cc src/stack.h src/datum.h src/forth.h
 out/forth.o: src/forth.cc src/forth.h src/stack.h src/dict.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+
+### Debug Build ###
+# Linking
+bin/forth-debug: out/forth-g.o out/datum-g.o out/dict-g.o out/stack-g.o
+	$(CC) $(CFLAGS) $(LIBS) -g -o $@ $^
+
+# Compiling
+out/datum-g.o: src/datum.cc src/datum.h
+	$(CC) $(CFLAGS) -c -g -o $@ $<
+
+out/dict-g.o: src/dict.cc src/dict.h src/forth.h
+	$(CC) $(CFLAGS) -c -g -o $@ $<
+
+out/stack-g.o: src/stack.cc src/stack.h src/datum.h src/forth.h
+	$(CC) $(CFLAGS) -c -g -o $@ $<
+
+out/forth-g.o: src/forth.cc src/forth.h src/stack.h src/dict.h
+	$(CC) $(CFLAGS) -c -g -o $@ $<
+
+
 # Phony Targets
 .PHONY:	forth clean squeaky archive tests
 
@@ -56,6 +80,6 @@ clean:
 	-$(RM) test/*.results test/*.err
 
 # Squeaky -- depends on clean, removes executable and archive
-squeaky:	clean
+squeaky: clean
 	-$(RM) bin/forth
 	-$(RM) $(ARCHIVE)
