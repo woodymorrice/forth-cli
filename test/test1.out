@@ -1,1 +1,19 @@
-hello world
+g++ -Wall -pedantic -std=c++17 -c -o out/forth.o src/forth.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/stack.o src/stack.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/dict.o src/dict.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/datum.o src/datum.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/forth.o src/forth.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/datum.o src/datum.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/dict.o src/dict.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/stack.o src/stack.cc
+g++ -Wall -pedantic -std=c++17 -lm -o bin/forth out/forth.o out/datum.o out/dict.o out/stack.o
+g++ -Wall -pedantic -std=c++17 -c -o out/forth.o src/forth.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/datum.o src/datum.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/dict.o src/dict.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/stack.o src/stack.cc
+g++ -Wall -pedantic -std=c++17 -lm -o bin/forth out/forth.o out/datum.o out/dict.o out/stack.o
+g++ -Wall -pedantic -std=c++17 -c -o out/forth.o src/forth.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/datum.o src/datum.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/dict.o src/dict.cc
+g++ -Wall -pedantic -std=c++17 -c -o out/stack.o src/stack.cc
+g++ -Wall -pedantic -std=c++17 -lm -o bin/forth out/forth.o out/datum.o out/dict.o out/stack.o

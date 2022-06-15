@@ -235,5 +235,5 @@ A1: Copied over my project files from A4, made a few formatting changes and adde
 
 A2: Ensured the application works properly and satisfies all the functional requirements for A4 - All requirements were achieved, included all tests from A4 and all tests passed.'
 
-A3: 
+A3: Test1 calls Makefile with each target. any error means the test failed. 
 

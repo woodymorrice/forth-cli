@@ -1,1 +1,3 @@
-."hello" space ."world" + + .
+# Test 1 is built into the test script.
+# Tests each makefile target, and removes the output before testing the next.
+# If any errors result, the test failed
