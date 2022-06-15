@@ -45,3 +45,17 @@ out/stack.o: src/stack.cc src/stack.h src/datum.h src/forth.h
 
 out/forth.o: src/forth.cc src/forth.h src/stack.h src/dict.h
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Phony Targets
+.PHONY:	forth clean squeaky archive tests
+
+# Clean -- no dependencies
+clean:
+	-$(RM) out/*.o
+	-$(RM) src/*~ ./*~
+	-$(RM) test/*.results test/*.err
+
+# Squeaky -- depends on clean, removes executable and archive
+squeaky:	clean
+	-$(RM) bin/forth
+	-$(RM) $(ARCHIVE)
