@@ -231,9 +231,11 @@ This is the property of the University of Saskatchewan, licensed in perpetuity, 
 
 ## Testing and Progress Report for A5
 
-A1: Copied over my project files from A4, made a few formatting changes and added #define and #ifdef/#ifndef commands for the pre-processor in the header files.
+Q1: Copied over my project files from A4, made a few formatting changes and added #define and #ifdef/#ifndef commands for the pre-processor in the header files.
 
-A2: Ensured the application works properly and satisfies all the functional requirements for A4 - All requirements were achieved, included all tests from A4 and all tests passed.'
+Q2: Ensured the application works properly and satisfies all the functional requirements for A4 - All requirements were achieved, included all tests from A4 and all tests passed.'
 
-A3: Test1 calls Makefile with each target. any error means the test failed. 
+Q3: Added Makefile with all and required dependencies. Test1 calls Makefile with each target. any error means the test failed. 
+
+Q4: Added clean and squeaky targets to Makefile. Test1 calls squeaky clean after each target. if any target fails because the file already exists, the test fails.
 
