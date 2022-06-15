@@ -11,6 +11,8 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 
 #include "forth.h"
 #include "dict.h"
+#include "stack.h"
+// #include "datum.h"
 
 dict *the_dictionary = NULL; // the dictionary for storing constants and variables
 

@@ -11,7 +11,11 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 #include <cmath>	// getopt()
 #include <cstring>	// strcmp()
 
-#include "dict.h" // datum.h is included in stack.h, and stack.h is included in dict.h
+#include "forth.h"
+#include "dict.h"
+#include "stack.h"
+// #include "datum.h"
+
 
 int process(FILE* f); // process -- read strings from stdin and process them
 int process_cmd(const char*); // process_cmd -- process a command

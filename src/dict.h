@@ -7,7 +7,8 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 #ifndef _DICT_H_
 #define _DICT_H_
 
-#include "stack.h"
+// #include "stack.h"
+#include "datum.h"
 
 // entry_type -- tags to identify dict entry types
 enum dict_tag { CONSTANT, VARIABLE };

@@ -7,7 +7,9 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 #include <cstdio>
 #include <cassert>
 
+#include "forth.h"
 #include "stack.h"
+#include "datum.h"
 
 // STACK_SIZE -- A constant representing the maximum size of the stack
 const int STACK_SIZE = 15;

@@ -5,6 +5,7 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 // stack.h -- stack declarations for A5
 
 #ifndef _STACK_H_
+#define _STACK_H_
 
 #include "forth.h"
 #include "datum.h" // include datum.h for operations
