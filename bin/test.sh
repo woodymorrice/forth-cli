@@ -34,3 +34,4 @@ rm -f out/forth.o out/stack.o out/dict.o out/datum.o bin/forth
 
 diff test/test1.act test/test1.out | tee test/test1.result
 rm -f test/test1.act
+
