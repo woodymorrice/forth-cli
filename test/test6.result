@@ -1,3 +1,4 @@
-0a1,2
-> PASS
+2c2
+< FAIL
+---
 > stack empty

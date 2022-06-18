@@ -1,0 +1,2 @@
+false if ."NOPE" else true if ."YEP" else ."NOPE" then then
+.

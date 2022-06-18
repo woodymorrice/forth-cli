@@ -1,7 +1,7 @@
-	  		1 2 > 
-if ."bad1" else 7 8 < 
-	       if 4 5 = 
-        if ."bad2" else ."good" then 
-		else ."bad3" then
-then .
-
+false 
+if ."bad1" else true 
+	if false 
+    	if ."bad2" else ."good" then
+	else ."bad3" then 
+then 
+.
