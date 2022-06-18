@@ -64,3 +64,20 @@ make squeaky clean
 diff test/test2.act test/test2.out | tee test/test2.result
 rm -f test/test2.act
 
+
+########################################################
+# Test 3 - Testing if/else/then
+# popped value is not a bool
+
+bin/forth  <  test.test3.in   \
+| diff -      test/test3.out  \
+| tee         test/test3.result
+
+
+########################################################
+# Test 4 - Testing if/else/then
+# testing both conditions and nested statements
+
+bin/forth  <  test.test4.in   \
+| diff -      test/test4.out  \
+| tee         test/test4.result

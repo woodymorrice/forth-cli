@@ -1,6 +1,4 @@
-20,24d19
-< g++ -Wall -pedantic -std=c++17 -c -g -o out/forth-g.o src/forth.cc
-< g++ -Wall -pedantic -std=c++17 -c -g -o out/datum-g.o src/datum.cc
-< g++ -Wall -pedantic -std=c++17 -c -g -o out/dict-g.o src/dict.cc
-< g++ -Wall -pedantic -std=c++17 -c -g -o out/stack-g.o src/stack.cc
-< g++ -Wall -pedantic -std=c++17 -lm -g -o bin/forth-debug out/forth-g.o out/datum-g.o out/dict-g.o out/stack-g.o
+1c1
+< make: 'out/forth.o' is up to date.
+---
+> g++ -Wall -pedantic -std=c++17 -c -o out/forth.o src/forth.cc

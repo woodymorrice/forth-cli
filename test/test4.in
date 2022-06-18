@@ -1,0 +1,7 @@
+	  1 2 > 
+if ."bad" else 7 8 < 
+	       if 4 5 = 
+        if ."bad" else ."good" then 
+		else ."bad" then
+then .
+

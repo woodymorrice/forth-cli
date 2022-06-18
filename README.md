@@ -241,3 +241,4 @@ Q4: Added clean and squeaky targets to Makefile. Test1 calls squeaky clean after
 
 Q5: Added debug target to Makefile. Added all new targets for dependencies to avoid bugs. Test2 calls debug and all dependencies. All targets must build to pass.
 
+Q6: Added two tests for if/else/then - Test3 tests the case where the value popped from the stack is not a boolean. Should return an error message. Test4 Tests if the bool is true and false, and nested if statements. Should result in expected behavior.

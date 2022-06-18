@@ -82,4 +82,5 @@ clean:
 # Squeaky -- depends on clean, removes executable and archive
 squeaky: clean
 	-$(RM) bin/forth
+	-$(RM) bin/forth-debug
 	-$(RM) $(ARCHIVE)
