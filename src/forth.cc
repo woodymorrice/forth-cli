@@ -19,6 +19,9 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 
 int process(FILE* f); // process -- read strings from stdin and process them
 int process_cmd(const char*); // process_cmd -- process a command
+// process_until -- reads commands from input until it sees the terminator
+//					then conditionally executes them based on the boolean
+int process_until(const char *term, bool exec);
 
 unsigned int fix = 4; // the number of decimals to print
 bool verbose = false; // whether to be verbose or not
@@ -123,59 +126,6 @@ int process(FILE* f) {
 	return result;
 }
 
-int do_nothing(FILE* in, const char* term) {
-	if (0 == strcmp (term, strdup("else"))) {
-		term = strdup("then");
-	}
-	char cmd[CMD_SIZE + 1];
-	while (0 == feof(in)) {
-		if (1 == fscanf(in, "%s", cmd)) {
-			if (1 == strcmp (term, cmd)) { ; }	
-		}
-	}
-	return EXIT_SUCCESS;
-}
-
-// process_until -- reads commands from input until it sees the terminator
-//					then conditionally executes them based on the boolean
-int process_until(FILE* in, const char *term, bool exec) {
-	char cmd[CMD_SIZE + 1];
-	while (0 == feof(in)) {
-		if (1 == fscanf(in, "%s", cmd)) {
-			if (0 == strcmp("if", cmd)) {
-				process_cmd(cmd);
-			}
-		
-		if (exec) {
-			if (0 == strcmp(term, cmd)) { 
-				process_until(in, "then", false); }
-			else { process_cmd(cmd); }
-		} else 
-		if (!exec) {
-			if (0 == strcmp("then", cmd)) { return EXIT_SUCCESS; }
-			if (0 == strcmp("else", cmd)) { process_until(in, "then", true); }
-		}
-		else {
-			fprintf(stderr, "ERROR: if statement failed\n");
-		}
-			// if (0 == strcmp(term, cmd))
-			// if (exec) { 
-			// 	if (0 == strcmp(term, cmd)) { 
-			// 	if (0 == strcmp(term, cmd)) { 
-			// 		process_until(in, "then", false); } // terminator
-			// 	else                        { process_cmd(cmd); }
-			// if (!exec) { process_cmd(cmd); }
-			// else { if (0 != strcmp(cmd, "else")) { ; }
-			// 	   else { process_until(in, "then", true); }
-				// if (0 == strcmp(cmd, "if")) {
-				// 		process_until(in, "then", false); }
-				// process_cmd(cmd);
-		}
-			// process_cmd(cmd);
-	}
-	return EXIT_FAILURE;
-}
-
 // try_push -- wrap push in a verboseness checking operation
 int try_push(datum d) {
 	if (!push(d)) {
@@ -207,7 +157,7 @@ int try_push(char *s) {
 }
 
 // OP -- a tag for FORTH operations					// # of operands
-enum op { SPACE, NEWLINE, DICT, LIST,							// nonary
+enum op { SPACE, NEWLINE, DICT, LIST, WHILE,					// nonary
 	  DOT, DROP, DUP, NOT, OFIX, IF,							// unary
 	  SWAP, PLUS, MINUS, TIMES, DIVIDE, POWER, AND, OR, SET,	// binary
   	  EQL, NOTEQL, GRTR, LESS, GRTEQL, LSSEQL, CONST, VAR,
@@ -317,6 +267,27 @@ int do_comp (char* o, datum d1, datum d2) {
 	return EXIT_FAILURE;
 }
 
+// // do_loop -- opens a temporary file and copies all of the commands
+// // up to the loop terminator into that file, and closes it
+// int do_loop(FILE* in, bool cond) {
+// 	char cmd[CMD_SIZE + 1];
+// 	while (0 == feof(in)) {
+// 		if (1 == fscanf(in, "%s", cmd)) {
+// 			char temp_name[50];
+// 			char buffer[50];
+// 			int temp_file = -1;
+// 			memset(temp_name,0,sizeof(temp_name));
+//     		memset(buffer,0,sizeof(buffer));
+// 			temp_file = mkstemp(temp_name);
+// 			strncpy(temp_name,"/tmp/myTmpFile-XXXXXX",21);
+// 			while (0 != strcmp(cmd, "loop")) {
+//     		strncpy(buffer,cmd,sizeof(cmd));
+// 			}
+// 			unlink(temp_name);
+// 		}
+// 	}
+// }
+
 // do_none(op) -- do an operation involving no stacked values
 int do_0(op o, char* cmd) {
 	switch (o) {
@@ -338,7 +309,7 @@ int do_0(op o, char* cmd) {
 }
 
 // do_1(op) -- do an operation involving only the value of the top of the stack
-int do_1(op o, FILE* in) {
+int do_1(op o) {
 	if (empty()) {
 		printf("%s\n", EMPTY_MSG);
 		return EXIT_FAILURE;
@@ -374,16 +345,19 @@ int do_1(op o, FILE* in) {
 					return EXIT_FAILURE;
 				} break;
 
-	case IF:	if (BOOL == d.tag) {
+	case IF:	if (BOOL == d.tag) { 
 					// if (d.b) { 
-						process_until(in, "else",  d.b); 
-						// }
-//					else	 { process_until(in, "then", !d.b); }
+						process_until("else",  d.b);
+							   process_until("then", !d.b); 
+							//    }
 				} else {
 					if (verbose) { fprintf(stderr, "USER ERROR: if statements must be preceded by a boolean\n"); }
 					assert(push(d));
 					return EXIT_FAILURE;
 				} break;
+
+	// case WHILE:	do_loop(stdin, true);
+	// 			break;	
 
 	default: 	if (verbose) { fprintf(stderr, "INTERNAL ERROR: invalid unary op %d\n", o); }
 				return EXIT_FAILURE;
@@ -484,6 +458,27 @@ int do_3(op o) {
   	return EXIT_FAILURE;
 }
 
+// process_until -- reads commands from input until it sees the terminator
+// 					then conditionally executes them based on the boolean
+int process_until(const char *term, bool exec) {
+	char cmd[CMD_SIZE + 1];
+	while (0 == feof(stdin)) {
+		if (1 == fscanf(stdin, "%s", cmd)) {
+			if (0 == strcmp(term, cmd)) {
+				return EXIT_SUCCESS;
+			}
+			if (exec) {
+				process_cmd(cmd);
+			} else {
+				if (0 == strcmp(cmd, "if")) {
+					process_until("then", false);
+				}
+			}
+		}
+	}
+	return EXIT_FAILURE;
+}
+
 // process_cmd -- takes a command string and processes it
 int process_cmd(const char* cmd) {
 	float f = -9999999.99;
@@ -509,13 +504,13 @@ int process_cmd(const char* cmd) {
 	} else if (0 == strcmp("^",         cmd)) { return do_2(POWER);
 
 	  // display
-	} else if (0 == strcmp(".",         cmd)) { return do_1(DOT, stdin);
-	} else if (0 == strcmp("fix",       cmd)) { return do_1(OFIX, stdin);
+	} else if (0 == strcmp(".",         cmd)) { return do_1(DOT);
+	} else if (0 == strcmp("fix",       cmd)) { return do_1(OFIX);
 
 	  // stack
 	} else if (0 == strcmp("rot",       cmd)) { return do_3(ROT);
-	} else if (0 == strcmp("dup",       cmd)) { return do_1(DUP, stdin);
-	} else if (0 == strcmp("drop",      cmd)) { return do_1(DROP, stdin);
+	} else if (0 == strcmp("dup",       cmd)) { return do_1(DUP);
+	} else if (0 == strcmp("drop",      cmd)) { return do_1(DROP);
 	} else if (0 == strcmp("swap",      cmd)) { return do_2(SWAP);
 
 	  // string
@@ -524,7 +519,7 @@ int process_cmd(const char* cmd) {
 	} else if (0 == strcmp("newline",   cmd)) { return do_0(NEWLINE, strdup(cmd));
 
 	  // logic
-	} else if (0 == strcmp("not",       cmd)) { return do_1(NOT, stdin);
+	} else if (0 == strcmp("not",       cmd)) { return do_1(NOT);
 	} else if (0 == strcmp("and",       cmd)) { return do_2(AND);
 	} else if (0 == strcmp("or",        cmd)) { return do_2(OR);
 
@@ -546,9 +541,8 @@ int process_cmd(const char* cmd) {
 	} else if (srch_dict(strdup(cmd))) 	      { return do_0(DICT, strdup(cmd));
 
 	  // conditional ops
-	} else if (0 == strcmp("if",        cmd)) { return do_1(IF, stdin);
-	// } else if (0 == strcmp("else",      cmd)) { return do_1(ELSE, stdin);
-	// } else if (0 == strcmp("then",      cmd)) { return EXIT_SUCCESS;
+	} else if (0 == strcmp("if",        cmd)) { return do_1(IF);
+	} else if (0 == strcmp("while",     cmd)) { ;
 	}
 	
 	  // unknown

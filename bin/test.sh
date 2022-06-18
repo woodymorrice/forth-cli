@@ -97,3 +97,35 @@ bin/forth  <  test/test5.in   \
 bin/forth  <  test/test6.in   \
 | diff -      test/test6.out  \
 | tee         test/test6.result
+
+########################################################
+# Test 7 - Testing if/else/then
+# testing false statement to make sure it works
+
+bin/forth  <  test/test7.in   \
+| diff -      test/test7.out  \
+| tee         test/test7.result
+
+########################################################
+# Test 8 - Testing if/else/then
+# testing false statement to make sure it works
+
+bin/forth  <  test/test8.in   \
+| diff -      test/test8.out  \
+| tee         test/test8.result
+
+########################################################
+# Test 9 - Testing if/else/then
+# testing false statement to make sure it works
+
+bin/forth  <  test/test9.in   \
+| diff -      test/test9.out  \
+| tee         test/test9.result
+
+########################################################
+# Test 10 - Testing if/else/then
+# testing false statement to make sure it works
+
+bin/forth  <  test/test10.in   \
+| diff -      test/test10.out  \
+| tee         test/test10.result
