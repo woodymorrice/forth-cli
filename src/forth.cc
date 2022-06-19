@@ -22,6 +22,9 @@ int process_cmd(const char*); // process_cmd -- process a command
 // process_until -- reads commands from input until it sees the terminator
 //					then conditionally executes them based on the boolean
 int process_until(const char *term, bool exec);
+// copy_until -- copies commands into a temporary file 
+//				 from input until it sees the terminator
+int copy_until(FILE* in, bool exec);
 
 unsigned int fix = 4; // the number of decimals to print
 bool verbose = false; // whether to be verbose or not
@@ -273,8 +276,8 @@ int do_comp (char* o, datum d1, datum d2) {
 // 	char cmd[CMD_SIZE + 1];
 // 	while (0 == feof(in)) {
 // 		if (1 == fscanf(in, "%s", cmd)) {
-// 			char temp_name[50];
-// 			char buffer[50];
+// 			char temp_name[25];
+// 			char buffer[CMD_SIZE+1];
 // 			int temp_file = -1;
 // 			memset(temp_name,0,sizeof(temp_name));
 //     		memset(buffer,0,sizeof(buffer));
@@ -346,18 +349,21 @@ int do_1(op o) {
 				} break;
 
 	case IF:	if (BOOL == d.tag) { 
-					// if (d.b) { 
-						process_until("else",  d.b);
-							   process_until("then", !d.b); 
-							//    }
+					process_until("else",  d.b);
+					process_until("then", !d.b); 
 				} else {
 					if (verbose) { fprintf(stderr, "USER ERROR: if statements must be preceded by a boolean\n"); }
 					assert(push(d));
 					return EXIT_FAILURE;
 				} break;
 
-	// case WHILE:	do_loop(stdin, true);
-	// 			break;	
+	case WHILE:	if (BOOL == d.tag) { 
+					copy_until(d.b);
+				} else {
+					if (verbose) { fprintf(stderr, "USER ERROR: if statements must be preceded by a boolean\n"); }
+					assert(push(d));
+					return EXIT_FAILURE;
+				} break;
 
 	default: 	if (verbose) { fprintf(stderr, "INTERNAL ERROR: invalid unary op %d\n", o); }
 				return EXIT_FAILURE;
@@ -458,6 +464,37 @@ int do_3(op o) {
   	return EXIT_FAILURE;
 }
 
+// copy_until -- copies commands into a temporary file 
+//				 from input until it sees the terminator
+int copy_until(bool exec) {
+	char buffer[CMD_SIZE+1];
+	strcpy(buffer, "/tmp/tmpXXXXXX");
+	int temp_file = -1;
+	temp_file = mkstemp(buffer);
+	char cmd[CMD_SIZE + 1];
+	while (0 == feof(stdin)) {
+		if (1 == fscanf(stdin, "%s", cmd)) {
+			if (0 == strcmp(buffer, "if")) {
+			process_until("then", false);
+		}
+		if (0 != strcmp("loop", buffer)) {
+			fscanf(stdin, "%s", buffer);
+		}
+	}
+	FILE* loop = fopen(buffer, "rwt");
+	if (exec) {
+		process(loop);
+	} else {
+		if (0 == strcmp(cmd, "if")) {
+			process_until("then", false);
+		}
+	}
+	}
+
+	return EXIT_SUCCESS;
+}
+			// unlink(temp_name);
+
 // process_until -- reads commands from input until it sees the terminator
 // 					then conditionally executes them based on the boolean
 int process_until(const char *term, bool exec) {
@@ -542,7 +579,7 @@ int process_cmd(const char* cmd) {
 
 	  // conditional ops
 	} else if (0 == strcmp("if",        cmd)) { return do_1(IF);
-	} else if (0 == strcmp("while",     cmd)) { ;
+	} else if (0 == strcmp("while",     cmd)) { return do_1(WHILE);
 	}
 	
 	  // unknown

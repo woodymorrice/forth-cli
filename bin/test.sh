@@ -100,7 +100,7 @@ bin/forth  <  test/test6.in   \
 
 ########################################################
 # Test 7 - Testing if/else/then
-# testing false statement to make sure it works
+# testing nested loops - true -> true
 
 bin/forth  <  test/test7.in   \
 | diff -      test/test7.out  \
@@ -108,7 +108,7 @@ bin/forth  <  test/test7.in   \
 
 ########################################################
 # Test 8 - Testing if/else/then
-# testing false statement to make sure it works
+# testing nested loops - true -> false
 
 bin/forth  <  test/test8.in   \
 | diff -      test/test8.out  \
@@ -116,7 +116,7 @@ bin/forth  <  test/test8.in   \
 
 ########################################################
 # Test 9 - Testing if/else/then
-# testing false statement to make sure it works
+# testing nested loops - false -> false
 
 bin/forth  <  test/test9.in   \
 | diff -      test/test9.out  \
@@ -124,8 +124,24 @@ bin/forth  <  test/test9.in   \
 
 ########################################################
 # Test 10 - Testing if/else/then
-# testing false statement to make sure it works
+# testing nested loops - false -> true
 
 bin/forth  <  test/test10.in   \
 | diff -      test/test10.out  \
 | tee         test/test10.result
+
+########################################################
+# Test 11 - Testing while loop
+# testing simple while loop
+
+bin/forth  <  test/test11.in   \
+| diff -      test/test11.out  \
+| tee         test/test11.result
+
+########################################################
+# Test 12 - Testing while loop
+# testing nested while loop
+
+bin/forth  <  test/test12.in   \
+| diff -      test/test12.out  \
+| tee         test/test12.result
