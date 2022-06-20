@@ -243,4 +243,6 @@ Q5: Added debug target to Makefile. Added all new targets for dependencies to av
 
 Q6: Added two tests for if/else/then - Test3 tests the case where the value popped from the stack is not a boolean. Should return an error message. Test4 Tests if the bool is true and false, and nested if statements. Should result in expected behavior. Added another two tests to check the if and the else conditions. Added more tests for different situations. Tests passed after several different implementations. Simpler turned out to be better.
 
-Q7: Adding two tests for while loop- simple loop and a nested loop. 
+Q7: Adding two tests for while loop- simple loop and a nested loop. Added two more tests to check the conditions where the loop doesnt execute. Achieved expected behaviour with a copy() function then a do_while() function to loop it until a false was popped.
+
+Q8: Three tests added for user defined commands. A simple command, a command calling another command, and a recursive command.

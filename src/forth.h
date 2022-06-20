@@ -10,6 +10,5 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 extern bool verbose; // whether to be verbose or not
 
 int process(FILE* f); // process -- read strings from stdin and process them
-int process_cmd(const char*); // process_cmd -- process a command
 
 #endif

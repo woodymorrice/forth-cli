@@ -39,7 +39,7 @@ bool set_dict(datum d1, datum d2);
 // prnt_dict -- prints a dict
 int prnt_dict(void);
 
-// free_dict -- frees a dict
-bool free_dict(dict d);
+// free_dict -- empties the dictionary from memory when exiting the program
+int free_dict(void);
 
 #endif

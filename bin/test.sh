@@ -161,3 +161,27 @@ bin/forth  <  test/test13.in   \
 bin/forth  <  test/test14.in   \
 | diff -      test/test14.out  \
 | tee         test/test14.result
+
+########################################################
+# Test 15 - Testing user defined commands
+# testing simple command
+
+bin/forth  <  test/test15.in   \
+| diff -      test/test15.out  \
+| tee         test/test15.result
+
+########################################################
+# Test 16 - Testing user defined commands
+# testing command calling another command
+
+bin/forth  <  test/test16.in   \
+| diff -      test/test16.out  \
+| tee         test/test16.result
+
+# ########################################################
+# # Test 17 - Testing user defined commands
+# # testing recursive commands
+
+# bin/forth  <  test/test17.in   \
+# | diff -      test/test17.out  \
+# | tee         test/test17.result

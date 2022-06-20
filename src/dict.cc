@@ -12,7 +12,6 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 #include "forth.h"
 #include "dict.h"
 #include "stack.h"
-// #include "datum.h"
 
 dict *the_dictionary = NULL; // the dictionary for storing constants and variables
 
@@ -118,6 +117,20 @@ int prnt_dict(void) {
             case  FLOAT: printf("%f\n", wlk->payload.f); break;
             case STRING: printf("%s\n", wlk->payload.s); break;
         }
+    }
+    return EXIT_SUCCESS;
+}
+
+// free_dict -- empties the dictionary from memory when exiting the program
+int free_dict(void) {
+    dict *wlk = NULL;
+    while (NULL != the_dictionary) {
+        wlk = the_dictionary;
+        the_dictionary = the_dictionary->next;
+        if (WORD == wlk->type) {
+			remove(wlk->payload.s);
+        }
+        free(wlk);
     }
     return EXIT_SUCCESS;
 }

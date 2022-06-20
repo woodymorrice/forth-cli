@@ -14,7 +14,6 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 #include "forth.h"
 #include "dict.h"
 #include "stack.h"
-// #include "datum.h"
 
 
 int process(FILE* f); // process -- read strings from stdin and process them
@@ -22,13 +21,8 @@ int process_cmd(const char*); // process_cmd -- process a command
 // process_until -- reads commands from input until it sees the terminator
 //					then conditionally executes them based on the boolean
 int process_until(FILE* in, const char *term, bool exec);
-// copy_until -- copies commands into a temporary file 
+// copy -- copies commands into a temporary file 
 //				 from input until it sees the terminator
-char* copy_until(char* file_name, const char* term, bool write, bool exec);
-// do_loop -- opens a temporary file and copies all of the commands
-// up to the loop terminator into that file, and closes it
-int do_loop(char* file_name);
-
 int copy(char* file_name, const char* term);
 
 unsigned int fix = 4; // the number of decimals to print
@@ -89,6 +83,7 @@ int main(int argc, char* argv[]) {
 			fprintf(stderr, "WARNING: an error occurred, please review computations\n");
 		}
 	}
+	free_dict();
 	return r;
 }
 
@@ -166,7 +161,7 @@ int try_push(char *s) {
 
 // OP -- a tag for FORTH operations					// # of operands
 enum op { SPACE, NEWLINE, DICT, LIST,							// nonary
-	  DOT, DROP, DUP, NOT, OFIX, IF, WHILE,	COLON,				// unary
+	  DOT, DROP, DUP, NOT, OFIX, IF, COLON,						// unary
 	  SWAP, PLUS, MINUS, TIMES, DIVIDE, POWER, AND, OR, SET,	// binary
   	  EQL, NOTEQL, GRTR, LESS, GRTEQL, LSSEQL, CONST, VAR,
 	  ROT, SUBS };												// ternary
@@ -174,12 +169,12 @@ enum op { SPACE, NEWLINE, DICT, LIST,							// nonary
 // do_arith -- handles all arithmetic operations
 int do_arith (char o, datum d1, datum d2) {
 	if ((FLOAT == d1.tag) && (FLOAT == d2.tag)) {
-		datum d; d.tag = FLOAT; // one line to declare the new datum and init the tag
+		datum d; d.tag = FLOAT;
 		switch (o) {
 		case '+': 	d.f = d2.f + d1.f;	break;
 		case '-': 	d.f = d2.f - d1.f;	break;
 		case '*': 	d.f = d2.f * d1.f;	break;
-		case '/': 	d.f = d2.f / d1.f;	break; // div by 0 = infinity... maybe should handle
+		case '/': 	d.f = d2.f / d1.f;	break;
 		case '^': 	d.f =pow(d2.f, d1.f);	break;
 		default : 	if (verbose) { fprintf(stderr, "INTERNAL ERROR: invalid arithmetic op '%c'\n", o); }
 					assert(push(d2));
@@ -191,12 +186,11 @@ int do_arith (char o, datum d1, datum d2) {
 		return EXIT_SUCCESS;
 	}
 	if ((STRING == d1.tag) && (STRING == d2.tag) && ('+' == o)) {
-		datum d; d.tag = STRING; // one line to declare the new datum and init the tag
-		// strnlen looks at the length of a string minus the tombstone and allows a max length (CMD_SIZE)
+		datum d; d.tag = STRING;
 		d.s = new char[strnlen(d1.s, CMD_SIZE) + strnlen(d2.s, CMD_SIZE) + 1];
-		d.s[0] = '\0'; // initializing the empty string
-		strncat(d.s, d2.s, CMD_SIZE); // don't have to check the length using
-		strncat(d.s, d1.s, CMD_SIZE); // strncat because we set the max length
+		d.s[0] = '\0';
+		strncat(d.s, d2.s, CMD_SIZE);
+		strncat(d.s, d1.s, CMD_SIZE);
 		assert(push(d));
 		return EXIT_SUCCESS;
 	}
@@ -341,17 +335,6 @@ int do_1(op o) {
 					return EXIT_FAILURE;
 				} break;
 
-	case WHILE:	{ char* file_name = strdup("./tmp/tmpXXXXXX\0");
-				  if (-1 == mkstemp(file_name)) {
-				  fprintf(stderr, "FILE ERROR: could not create temporary file\n");
-				  }
-				  copy(file_name, "loop");
-				  //   char* loop_cmd = strdup(file_name);
-				  //   do_loop(loop_cmd);
-				  do_loop(file_name);
-				  return EXIT_SUCCESS;
-				} break;
-
 	case COLON: { if (STRING != d.tag) {
 				  if (verbose) { fprintf(stderr, "USER ERROR: popped value must be a string\n"); }
 				  assert(push(d));
@@ -362,11 +345,6 @@ int do_1(op o) {
 				  fprintf(stderr, "FILE ERROR: could not create temporary file\n");
 				  }
 				  copy(file_name, ";");
-				//   copy_until(file_name, ";", true, false);
-				//   datum d2; d2.tag = STRING; 
-				//   strcpy(d2.s, file_name);
-				//   d2.s = strdup(file_name);
-				//   d2.s = file_name;
 				  try_push(strdup(file_name));
 				  datum d2 = pop();
 				  make_dict(WORD, d2, d);
@@ -472,25 +450,6 @@ int do_3(op o) {
   	return EXIT_FAILURE;
 }
 
-// do_loop -- opens a temporary file and copies all of the commands
-// up to the loop terminator into that file, and closes it
-int do_loop(char* file_name) {
-	while (!empty()) {
-	FILE* file = fopen(file_name, "wrt");
-		// printf("hello\n");
-		// datum d; d = pop();
-		// print(d, fix, true);
-		process(file);
-		datum d = pop();
-		while (BOOL == d.tag && true == d.b) {
-			do_loop(file_name);
-			// process(file);
-		}
-		fclose(file);
-	}
-	return EXIT_SUCCESS;
-}
-
 int do_while() {
 	if (empty()) {
 		printf("%s\n", EMPTY_MSG);
@@ -501,31 +460,17 @@ int do_while() {
 	fprintf(stderr, "FILE ERROR: could not create temporary file\n");
 	}
 	copy(file_name, "loop");
-	// while (!empty()) {
 	datum d = pop();
-		// if (BOOL == d.tag && true == d.b) {
-			// while (BOOL == d.tag && true == d.b) {
-				while (BOOL == d.tag && d.b) {
-				FILE* file = fopen(file_name, "r");
-				process(file);
-				fflush(file);
-				fclose(file);
-				d = pop();
-			}
-			unlink(file_name);
-			remove(file_name);
-		// }
-	// }
-	// file = fopen(file_name, "r");
-	// process(file);
-	// fflush(file);
-	// d = pop();
-	// fclose(file);
-	// file = fopen(file_name, "r");
-	// process(file);
-	// fflush(file);
-	// d = pop();
-	// fclose(file);
+	while (BOOL == d.tag && d.b) {
+		FILE* file = fopen(file_name, "r");
+		process(file);
+		fflush(file);
+		fclose(file);
+		d = pop();
+	}
+	unlink(file_name);
+	remove(file_name);
+
 	return EXIT_SUCCESS;
 }
 
@@ -543,6 +488,7 @@ int copy(char* file_name, const char* term) {
 			fflush(out);
 		}
 	}
+	unlink(file_name);
 	fclose(out);
 	return EXIT_SUCCESS;
 }
@@ -640,33 +586,3 @@ int process_cmd(const char* cmd) {
 	if (verbose) { fprintf(stderr, "USER ERROR: unrecognized op '%s'\n", cmd); }
 	return EXIT_FAILURE;
 }
-
-
-// // copy_until -- reads commands from input until it sees the terminator
-// // 					then copies them to a temporary file
-// char* copy_until(char* file_name, const char* term, bool write, bool exec) {
-// 	FILE* out = fopen(file_name, "w+t");
-// 	char cmd[CMD_SIZE + 1];	
-// 	while (0 == feof(stdin)) {
-// 		if (1 == fscanf(stdin, "%s", cmd)) {
-// 			if (0 == strcmp(term, cmd)) {
-
-// 				return EXIT_SUCCESS;
-// 			}
-// 			if (write) {
-// 				fprintf(out, cmd);
-// 				fprintf(out, "\n");
-// 				fflush(out);
-// 				// if (exec) {
-// 				// process_cmd(cmd);
-// 				// }
-// 			} else {
-// 				if (0 == strcmp(cmd, "while")) {
-// 					copy_until(file_name, "loop", false, false);
-// 				}
-// 			}
-// 		}
-// 	}
-// 	fclose(out);
-// 	return file_name;	
-// }
