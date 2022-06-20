@@ -1,0 +1,3 @@
+."popN" : dup 0 > if 1 - swap pop popN else pop then ;
+."one" 2 false 4
+3 popN .
