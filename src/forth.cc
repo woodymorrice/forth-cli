@@ -512,6 +512,8 @@ int do_while() {
 				fclose(file);
 				d = pop();
 			}
+			unlink(file_name);
+			remove(file_name);
 		// }
 	// }
 	// file = fopen(file_name, "r");

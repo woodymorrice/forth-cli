@@ -148,7 +148,7 @@ bin/forth  <  test/test12.in   \
 
 ########################################################
 # Test 13 - Testing while loop
-# testing nested while loop
+# testing popped val not a bool
 
 bin/forth  <  test/test13.in   \
 | diff -      test/test13.out  \
@@ -156,7 +156,7 @@ bin/forth  <  test/test13.in   \
 
 ########################################################
 # Test 14 - Testing while loop
-# testing nested while loop
+# testing popped val is false
 
 bin/forth  <  test/test14.in   \
 | diff -      test/test14.out  \

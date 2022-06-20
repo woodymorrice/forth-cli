@@ -1,1 +1,2 @@
-10 dup 3 > while 1 - dup 3 > loop
+true while false dup while true dup not loop = loop
+. . .
