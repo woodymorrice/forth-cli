@@ -9,9 +9,10 @@ CMPT214 - Assignment 5 - Fully-Implemented FORTH
 
 // #include "stack.h"
 #include "datum.h"
+#include "forth.h"
 
 // entry_type -- tags to identify dict entry types
-enum dict_tag { CONSTANT, VARIABLE };
+enum dict_tag { CONSTANT, VARIABLE, WORD };
 
 // dict -- structure to hold dictionary entries
 struct dict {   dict_tag        type;

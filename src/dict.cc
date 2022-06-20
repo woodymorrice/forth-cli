@@ -19,8 +19,9 @@ dict *the_dictionary = NULL; // the dictionary for storing constants and variabl
 const char* RESTRICTED_NAMES[] = {"+", "-", "*", "/", "^", ".", "=", ">", "<", "!=", 
                                   ">=", "<=", "or", "and", "fix", "rot", "dup", "not",
                                   "drop", "swap", "substring", "space", "newline",
-                                  "constant", "variable", "true", "false", "set"};
-const int RESTR_SIZE = 28; // number of restricted names
+                                  "constant", "variable", "true", "false", "set", "if",
+                                  "while", "word"};
+const int RESTR_SIZE = 31; // number of restricted names
 
 // srch_dict -- searches the dictionary for a name and returns true if it finds it
 bool srch_dict(char* s) {
@@ -45,7 +46,15 @@ bool check_rstrct(char* s) {
 //           -- always search before calling push_dict
 int push_dict(char* s) {
     for (dict *wlk = the_dictionary; NULL!=wlk; wlk = wlk->next) {
-        if (0 == strcmp(wlk->name,s)) { push(wlk->payload); return EXIT_SUCCESS; }
+        if (0 == strcmp(wlk->name,s)) { 
+            if (WORD == wlk->type) {
+                FILE* word = fopen((wlk->payload.s), "rt");
+                process(word);
+                fclose(word);
+                return EXIT_SUCCESS;
+            } else { 
+                push(wlk->payload); return EXIT_SUCCESS; }
+        }
     }
     if (verbose) { printf("Critical Failure: entry not in dictionary\n"); }
 	exit(EXIT_FAILURE);

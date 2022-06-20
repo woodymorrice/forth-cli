@@ -21,10 +21,15 @@ int process(FILE* f); // process -- read strings from stdin and process them
 int process_cmd(const char*); // process_cmd -- process a command
 // process_until -- reads commands from input until it sees the terminator
 //					then conditionally executes them based on the boolean
-int process_until(const char *term, bool exec);
+int process_until(FILE* in, const char *term, bool exec);
 // copy_until -- copies commands into a temporary file 
 //				 from input until it sees the terminator
-int copy_until(FILE* in, bool exec);
+char* copy_until(char* file_name, const char* term, bool write, bool exec);
+// do_loop -- opens a temporary file and copies all of the commands
+// up to the loop terminator into that file, and closes it
+int do_loop(char* file_name);
+
+int copy(char* file_name, const char* term);
 
 unsigned int fix = 4; // the number of decimals to print
 bool verbose = false; // whether to be verbose or not
@@ -160,8 +165,8 @@ int try_push(char *s) {
 }
 
 // OP -- a tag for FORTH operations					// # of operands
-enum op { SPACE, NEWLINE, DICT, LIST, WHILE,					// nonary
-	  DOT, DROP, DUP, NOT, OFIX, IF,							// unary
+enum op { SPACE, NEWLINE, DICT, LIST,							// nonary
+	  DOT, DROP, DUP, NOT, OFIX, IF, WHILE,	COLON,				// unary
 	  SWAP, PLUS, MINUS, TIMES, DIVIDE, POWER, AND, OR, SET,	// binary
   	  EQL, NOTEQL, GRTR, LESS, GRTEQL, LSSEQL, CONST, VAR,
 	  ROT, SUBS };												// ternary
@@ -270,27 +275,6 @@ int do_comp (char* o, datum d1, datum d2) {
 	return EXIT_FAILURE;
 }
 
-// // do_loop -- opens a temporary file and copies all of the commands
-// // up to the loop terminator into that file, and closes it
-// int do_loop(FILE* in, bool cond) {
-// 	char cmd[CMD_SIZE + 1];
-// 	while (0 == feof(in)) {
-// 		if (1 == fscanf(in, "%s", cmd)) {
-// 			char temp_name[25];
-// 			char buffer[CMD_SIZE+1];
-// 			int temp_file = -1;
-// 			memset(temp_name,0,sizeof(temp_name));
-//     		memset(buffer,0,sizeof(buffer));
-// 			temp_file = mkstemp(temp_name);
-// 			strncpy(temp_name,"/tmp/myTmpFile-XXXXXX",21);
-// 			while (0 != strcmp(cmd, "loop")) {
-//     		strncpy(buffer,cmd,sizeof(cmd));
-// 			}
-// 			unlink(temp_name);
-// 		}
-// 	}
-// }
-
 // do_none(op) -- do an operation involving no stacked values
 int do_0(op o, char* cmd) {
 	switch (o) {
@@ -349,20 +333,44 @@ int do_1(op o) {
 				} break;
 
 	case IF:	if (BOOL == d.tag) { 
-					process_until("else",  d.b);
-					process_until("then", !d.b); 
+					process_until(stdin, "else",  d.b);
+					process_until(stdin, "then", !d.b); 
 				} else {
 					if (verbose) { fprintf(stderr, "USER ERROR: if statements must be preceded by a boolean\n"); }
 					assert(push(d));
 					return EXIT_FAILURE;
 				} break;
 
-	case WHILE:	if (BOOL == d.tag) { 
-					copy_until(d.b);
-				} else {
-					if (verbose) { fprintf(stderr, "USER ERROR: if statements must be preceded by a boolean\n"); }
-					assert(push(d));
-					return EXIT_FAILURE;
+	case WHILE:	{ char* file_name = strdup("./tmp/tmpXXXXXX\0");
+				  if (-1 == mkstemp(file_name)) {
+				  fprintf(stderr, "FILE ERROR: could not create temporary file\n");
+				  }
+				  copy(file_name, "loop");
+				  //   char* loop_cmd = strdup(file_name);
+				  //   do_loop(loop_cmd);
+				  do_loop(file_name);
+				  return EXIT_SUCCESS;
+				} break;
+
+	case COLON: { if (STRING != d.tag) {
+				  if (verbose) { fprintf(stderr, "USER ERROR: popped value must be a string\n"); }
+				  assert(push(d));
+				  return EXIT_FAILURE;
+				  }
+		          char* file_name = strdup("./tmp/tmpXXXXXX\0");
+				  if (-1 == mkstemp(file_name)) {
+				  fprintf(stderr, "FILE ERROR: could not create temporary file\n");
+				  }
+				  copy(file_name, ";");
+				//   copy_until(file_name, ";", true, false);
+				//   datum d2; d2.tag = STRING; 
+				//   strcpy(d2.s, file_name);
+				//   d2.s = strdup(file_name);
+				//   d2.s = file_name;
+				  try_push(strdup(file_name));
+				  datum d2 = pop();
+				  make_dict(WORD, d2, d);
+				  return EXIT_SUCCESS;
 				} break;
 
 	default: 	if (verbose) { fprintf(stderr, "INTERNAL ERROR: invalid unary op %d\n", o); }
@@ -464,43 +472,85 @@ int do_3(op o) {
   	return EXIT_FAILURE;
 }
 
-// copy_until -- copies commands into a temporary file 
-//				 from input until it sees the terminator
-int copy_until(bool exec) {
-	char buffer[CMD_SIZE+1];
-	strcpy(buffer, "/tmp/tmpXXXXXX");
-	int temp_file = -1;
-	temp_file = mkstemp(buffer);
-	char cmd[CMD_SIZE + 1];
-	while (0 == feof(stdin)) {
-		if (1 == fscanf(stdin, "%s", cmd)) {
-			if (0 == strcmp(buffer, "if")) {
-			process_until("then", false);
+// do_loop -- opens a temporary file and copies all of the commands
+// up to the loop terminator into that file, and closes it
+int do_loop(char* file_name) {
+	while (!empty()) {
+	FILE* file = fopen(file_name, "wrt");
+		// printf("hello\n");
+		// datum d; d = pop();
+		// print(d, fix, true);
+		process(file);
+		datum d = pop();
+		while (BOOL == d.tag && true == d.b) {
+			do_loop(file_name);
+			// process(file);
 		}
-		if (0 != strcmp("loop", buffer)) {
-			fscanf(stdin, "%s", buffer);
-		}
+		fclose(file);
 	}
-	FILE* loop = fopen(buffer, "rwt");
-	if (exec) {
-		process(loop);
-	} else {
-		if (0 == strcmp(cmd, "if")) {
-			process_until("then", false);
-		}
-	}
-	}
-
 	return EXIT_SUCCESS;
 }
-			// unlink(temp_name);
+
+int do_while() {
+	if (empty()) {
+		printf("%s\n", EMPTY_MSG);
+		return EXIT_FAILURE;
+	}
+	char* file_name = strdup("./tmp/tmpXXXXXX\0");
+	if (-1 == mkstemp(file_name)) {
+	fprintf(stderr, "FILE ERROR: could not create temporary file\n");
+	}
+	copy(file_name, "loop");
+	// while (!empty()) {
+	datum d = pop();
+		// if (BOOL == d.tag && true == d.b) {
+			// while (BOOL == d.tag && true == d.b) {
+				while (BOOL == d.tag && d.b) {
+				FILE* file = fopen(file_name, "r");
+				process(file);
+				fflush(file);
+				fclose(file);
+				d = pop();
+			}
+		// }
+	// }
+	// file = fopen(file_name, "r");
+	// process(file);
+	// fflush(file);
+	// d = pop();
+	// fclose(file);
+	// file = fopen(file_name, "r");
+	// process(file);
+	// fflush(file);
+	// d = pop();
+	// fclose(file);
+	return EXIT_SUCCESS;
+}
+
+int copy(char* file_name, const char* term) {
+	FILE* out = fopen(file_name, "w+t");
+	char cmd[CMD_SIZE + 1];	
+	while (0 == feof(stdin)) {
+		if (1 == fscanf(stdin, "%s", cmd)) {
+			if (0 == strcmp(term, cmd)) {
+				fclose(out);
+				return EXIT_SUCCESS;
+			}	
+			fprintf(out, cmd);
+			fprintf(out, "\n");
+			fflush(out);
+		}
+	}
+	fclose(out);
+	return EXIT_SUCCESS;
+}
 
 // process_until -- reads commands from input until it sees the terminator
 // 					then conditionally executes them based on the boolean
-int process_until(const char *term, bool exec) {
+int process_until(FILE* in, const char *term, bool exec) {
 	char cmd[CMD_SIZE + 1];
-	while (0 == feof(stdin)) {
-		if (1 == fscanf(stdin, "%s", cmd)) {
+	while (0 == feof(in)) {
+		if (1 == fscanf(in, "%s", cmd)) {
 			if (0 == strcmp(term, cmd)) {
 				return EXIT_SUCCESS;
 			}
@@ -508,7 +558,7 @@ int process_until(const char *term, bool exec) {
 				process_cmd(cmd);
 			} else {
 				if (0 == strcmp(cmd, "if")) {
-					process_until("then", false);
+					process_until(in, "then", false);
 				}
 			}
 		}
@@ -574,15 +624,47 @@ int process_cmd(const char* cmd) {
 	} else if (0 == strcmp("set", 	    cmd)) { return do_2(SET);
 	} else if (0 == strcmp("list_dict", cmd)) { return do_0(LIST, strdup(cmd));
 
-	  // dictionary entry
-	} else if (srch_dict(strdup(cmd))) 	      { return do_0(DICT, strdup(cmd));
-
 	  // conditional ops
 	} else if (0 == strcmp("if",        cmd)) { return do_1(IF);
-	} else if (0 == strcmp("while",     cmd)) { return do_1(WHILE);
+	// } else if (0 == strcmp("while",     cmd)) { return do_1(WHILE);
+	} else if (0 == strcmp("while",     cmd)) { return do_while();
+	} else if (0 == strcmp(":",         cmd)) { return do_1(COLON);
+
+	  // dictionary entry
+	} else if (srch_dict(strdup(cmd))) 	      { return do_0(DICT, strdup(cmd));
 	}
 	
 	  // unknown
 	if (verbose) { fprintf(stderr, "USER ERROR: unrecognized op '%s'\n", cmd); }
 	return EXIT_FAILURE;
 }
+
+
+// // copy_until -- reads commands from input until it sees the terminator
+// // 					then copies them to a temporary file
+// char* copy_until(char* file_name, const char* term, bool write, bool exec) {
+// 	FILE* out = fopen(file_name, "w+t");
+// 	char cmd[CMD_SIZE + 1];	
+// 	while (0 == feof(stdin)) {
+// 		if (1 == fscanf(stdin, "%s", cmd)) {
+// 			if (0 == strcmp(term, cmd)) {
+
+// 				return EXIT_SUCCESS;
+// 			}
+// 			if (write) {
+// 				fprintf(out, cmd);
+// 				fprintf(out, "\n");
+// 				fflush(out);
+// 				// if (exec) {
+// 				// process_cmd(cmd);
+// 				// }
+// 			} else {
+// 				if (0 == strcmp(cmd, "while")) {
+// 					copy_until(file_name, "loop", false, false);
+// 				}
+// 			}
+// 		}
+// 	}
+// 	fclose(out);
+// 	return file_name;	
+// }

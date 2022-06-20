@@ -145,3 +145,19 @@ bin/forth  <  test/test11.in   \
 bin/forth  <  test/test12.in   \
 | diff -      test/test12.out  \
 | tee         test/test12.result
+
+########################################################
+# Test 13 - Testing while loop
+# testing nested while loop
+
+bin/forth  <  test/test13.in   \
+| diff -      test/test13.out  \
+| tee         test/test13.result
+
+########################################################
+# Test 14 - Testing while loop
+# testing nested while loop
+
+bin/forth  <  test/test14.in   \
+| diff -      test/test14.out  \
+| tee         test/test14.result
