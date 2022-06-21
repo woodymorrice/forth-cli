@@ -6,27 +6,49 @@
 # Test Script for A5
 
 count=0
+fails=0
+
 if [ "x$1" == "x" ]
-then
+then    # if no command line argument, run all tests
     for T in test/test*.in
     do
     count=$((count + 1))
         bin/forth  <  test/`basename ${T} .in`.in   \
         | diff -      test/`basename ${T} .in`.out  \
-        | tee         test/`basename ${T} .in`.result
+        | tee      >  test/`basename ${T} .in`.result
+        if [ -s test/`basename ${T} .in`.result ]
+        then
+            fails=$((fails + 1))
+        fi
     done
 else
     for i in $@
-        do
-        T=test/test${i}.in
-        count=$((count + 1))
-            bin/forth  <  test/`basename ${T} .in`.in   \
-            | diff -      test/`basename ${T} .in`.out  \
-            | tee         test/`basename ${T} .in`.result
-        done
-    if [1 == count]
+    do
+    T=test/test${i}.in
+    count=$((count + 1))
+        bin/forth  <  test/`basename ${T} .in`.in   \
+        | diff -      test/`basename ${T} .in`.out  \
+        | tee      >  test/`basename ${T} .in`.result
+        if [ -s test/`basename ${T} .in`.result ]
+        then
+            fails=$((fails + 1))
+        fi
+    done
 fi
-echo ${count}
+
+if [ 1 == "$count" ]
+then
+    if [ -s test/test${i}.result ]
+    then
+        cat test/test${i}.result
+    else
+        echo test passed
+    fi
+else
+    echo "$count tests run, $fails failed and $((count - fails)) passed."
+fi
+
+# echo ${count}
 
 # for T in test/test${i}.in
 # for i in $@
