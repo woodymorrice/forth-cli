@@ -247,4 +247,4 @@ Q7: Adding two tests for while loop- simple loop and a nested loop. Added two mo
 
 Q8: Three tests added for user defined commands. A simple command, a command calling another command, and a recursive command. Recursive test was taking from the assignment outline, and actually resulted in infinite recursion... so we know the recursion works, but the test case was removed.
 
-Q9: Added dynamic test script, allows for single tests to check results, or runs all tests and reports how many pass and fail. 
+Q9: Added dynamic test script, allows for single tests to check results, or runs all tests and reports how many pass and fail. One test runs all tests, one is a single pass, one is a single fail, one has multiple tests with one pass, and one has multiple tests with one fail.
