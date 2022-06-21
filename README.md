@@ -245,4 +245,4 @@ Q6: Added two tests for if/else/then - Test3 tests the case where the value popp
 
 Q7: Adding two tests for while loop- simple loop and a nested loop. Added two more tests to check the conditions where the loop doesnt execute. Achieved expected behaviour with a copy() function then a do_while() function to loop it until a false was popped.
 
-Q8: Three tests added for user defined commands. A simple command, a command calling another command, and a recursive command.
+Q8: Three tests added for user defined commands. A simple command, a command calling another command, and a recursive command. Recursive test was taking from the assignment outline, and actually resulted in infinite recursion... so we know the recursion works, but the test case was removed.

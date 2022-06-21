@@ -1,4 +1,0 @@
-1c1
-< make: 'out/forth.o' is up to date.
----
-> g++ -Wall -pedantic -std=c++17 -c -o out/forth.o src/forth.cc
