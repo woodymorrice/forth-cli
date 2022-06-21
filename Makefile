@@ -77,7 +77,7 @@ out/forth-g.o: src/forth.cc src/forth.h src/stack.h src/dict.h
 clean:
 	-$(RM) out/*.o
 	-$(RM) src/*~ ./*~
-	-$(RM) test/*.results test/*.err
+	-$(RM) test/*.result test/*.err
 
 # Squeaky -- depends on clean, removes executable and archive
 squeaky: clean

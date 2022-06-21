@@ -21,7 +21,7 @@ then    # if no command line argument, run all tests
             fails=$((fails + 1))
         fi
     done
-else
+else    # run all tests listed
     for i in $@
     do
     T=test/test${i}.in
@@ -36,6 +36,7 @@ else
     done
 fi
 
+# if one, display results
 if [ 1 == "$count" ]
 then
     if [ -s test/test${i}.result ]
@@ -44,42 +45,12 @@ then
     else
         echo test passed
     fi
-else
+# otherwise display passed tests
+else 
     echo "$count tests run, $fails failed and $((count - fails)) passed."
 fi
+echo "NOTE: One test fails on purpose for demonstration purposes"
 
-# echo ${count}
-
-# for T in test/test${i}.in
-# for i in $@
-# # for T in test/test${i}.in
-#     do
-#     T=test/test${i}.in
-#     count=$((count + 1))
-#         bin/forth  <  test/`basename ${T} .in`.in   \
-#         | diff -      test/`basename ${T} .in`.out  \
-#         | tee         test/`basename ${T} .in`.result
-#     done
-# echo ${count}
-
-
-# for T in test/test${i}.in
-#     do
-#     count=$((count + 1))
-#         bin/forth  <  test/`basename ${T} .in`.in   \
-#         | diff -      test/`basename ${T} .in`.out  \
-#         | tee         test/`basename ${T} .in`.result
-#     done
-# echo ${count}
-
-
-# for T in test/$(testnum).in				; \
-# 	do						  \
-# 		test/`$(BASENAME) $$T .in`.results	; \
-# 	done
-# $(GREP) -v "^#" $<							| \
-# 		./bin/forth $(FLIBS) $(FFLAGS) 2> $*.err			| \
-# 		diff - $*.out > $@ 
 
 
 # bin/forth  <  test/test3.in   \
@@ -257,11 +228,3 @@ fi
 # bin/forth  <  test/test16.in   \
 # | diff -      test/test16.out  \
 # | tee         test/test16.result
-
-# ########################################################
-# # Test 17 - Testing user defined commands
-# # testing recursive commands
-
-# bin/forth  <  test/test17.in   \
-# | diff -      test/test17.out  \
-# | tee         test/test17.result
