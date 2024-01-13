@@ -1,5 +1,3 @@
-/** Woody Morrice - 11071060 - wam553 - CMPT214 - Assignment 5 - FORTH **/
-
 ## FORTH
 
 FORTH is a procedural, stack-oriented programming language and command line environment. It combines a compiler with an integrated multitasking command shell. The user performs computations using subroutines and variables called 'words' that can be defined and changed by the user, as well as imported when running the program. Parameters are pushed to and popped from a stack, so expressions are formed using postfix notation.
